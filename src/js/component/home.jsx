@@ -4,7 +4,16 @@ import React, { useState } from "react";
 const Home = () => {
 	//creamos 2 estados, task (guarda lo que hace el usuario) y todo (la lista de tareas)
 	const [task, setTask] = useState("");
-	const [todos, setTodos] = useState([]);
+	const [todos, setTodos] = useState([
+		{
+			label: "make dinner",
+			done: false,
+		},
+		{
+			label: "walk with my friend",
+			done: false,
+		},
+	]);
 	//aplicar funciones con evento change (detecta cambios en input y los agrega a task)
 	function handleChange(event) {
 		setTask(event.target.value);
@@ -12,7 +21,7 @@ const Home = () => {
 	//terminado el evento onchange, se agrega en el edo todo
 	function addTask(event) {
 		if (event.key === "Enter") {
-			if (task.trim() !== "") {
+			if (task.trim.label() !== "") {
 				setTodos([...todos, task]);
 				setTask("");
 			}
