@@ -1,4 +1,9 @@
-
+body{
+    color: white;
+    background-color: thistle;
+    font-family: Lato, sans-serif;
+    margin-top: 40px;
+} 
 /* 
 
     You can write your own styles here...
