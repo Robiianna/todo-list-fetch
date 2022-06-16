@@ -1,37 +1,85 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 //create your first component
+
 const Home = () => {
+	//variable general
+	const initialState = { label: "", done: false };
+
+	const urlBase = "https://assets.breatheco.de/apis/fake/todos/user";
 	//creamos 2 estados, task (guarda lo que hace el usuario) y todo (la lista de tareas)
-	const [task, setTask] = useState("");
-	const [todos, setTodos] = useState([
-		{
-			label: "make dinner",
-			done: false,
-		},
-		{
-			label: "walk with my friend",
-			done: false,
-		},
-	]);
+	const [task, setTask] = useState(initialState);
+	const [todos, setTodos] = useState([]);
 	//aplicar funciones con evento change (detecta cambios en input y los agrega a task)
-	function handleChange(event) {
-		setTask(event.target.value);
+	function handleChange(e) {
+		setTask({ ...task, [e.target.name]: e.target.value });
 	}
 	//terminado el evento onchange, se agrega en el edo todo
-	function addTask(event) {
+
+	async function addTask(event) {
 		if (event.key === "Enter") {
-			if (task.trim.label() !== "") {
-				setTodos([...todos, task]);
-				setTask("");
+			if (task.label.trim() !== "") {
+				let response = await fetch(`${urlBase}/robiianna`, {
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify([...todos, task]),
+				});
+				if (response.ok) {
+					getTask();
+					setTask(initialState);
+				}
 			}
 		}
 	}
 	//funcion eliminar tarea, recibe el id como parametro (index)
-	function deleteTask(id) {
+	async function deleteTask(id) {
 		let newTask = todos.filter((ta, index) => id !== index);
+
+		let response = await fetch(`${urlBase}/robiianna`, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(newTask),
+		});
+		if (response.ok) {
+			getTask();
+		}
 		setTodos(newTask);
 	}
+
+	//traer tareas
+	async function getTask() {
+		try {
+			let response = await fetch(`${urlBase}/robiianna`);
+			if (response.ok) {
+				let data = await response.json();
+				setTodos(data);
+			} else {
+				try {
+					let responseTwo = await fetch(`${urlBase}/robiianna`, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify([]),
+					});
+					if (response.ok) {
+						getTask();
+					}
+				} catch (error) {
+					console.log(error);
+				}
+			}
+			console.log(response);
+		} catch (error) {
+			console.log(error);
+		}
+	}
+	useEffect(() => {
+		getTask();
+	}, []);
+
 	return (
 		<div className="container">
 			<div className="row justify-content-center">
@@ -45,9 +93,10 @@ const Home = () => {
 							type="text"
 							placeholder="add your task"
 							className="form-control"
-							value={task}
+							value={task.label}
 							onChange={handleChange}
 							onKeyDown={addTask}
+							name="label"
 							//eventos
 						/>
 					</form>
@@ -65,7 +114,7 @@ const Home = () => {
 									onClick={() => {
 										deleteTask(index);
 									}}>
-									{ta}
+									{ta.label}
 								</li>
 							);
 						})}
